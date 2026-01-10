@@ -24,39 +24,57 @@ services:
 
   core:
     build: .
-    command: gunicorn ebanking.wsgi:application --bind 0.0.0.0:8001 --workers 2
+    command: gunicorn ebanking.wsgi:application --bind 0.0.0.0:8001 --workers 2 --timeout 120 --log-level debug
     volumes:
       - ./ebanking/media:/app/ebanking/media
       - ./ebanking/staticfiles:/app/ebanking/staticfiles
+      - ./templates:/app/templates
     environment:
       - DB_HOST=postgres
+      - REDIS_URL=redis://redis:6379
+      - PYTHONUNBUFFERED=1
+      - DJANGO_SETTINGS_MODULE=ebanking.settings
     depends_on:
       postgres:
         condition: service_healthy
+      redis:
+        condition: service_started
 
   ebanking1:
     build: .
-    command: gunicorn ebanking.wsgi:application --bind 0.0.0.0:8002 --workers 2
+    command: gunicorn ebanking.wsgi:application --bind 0.0.0.0:8002 --workers 2 --timeout 120 --log-level debug
     volumes:
       - ./ebanking/media:/app/ebanking/media
       - ./ebanking/staticfiles:/app/ebanking/staticfiles
+      - ./templates:/app/templates
     environment:
       - DB_HOST=postgres
+      - REDIS_URL=redis://redis:6379
+      - PYTHONUNBUFFERED=1
+      - DJANGO_SETTINGS_MODULE=ebanking.settings
     depends_on:
       postgres:
         condition: service_healthy
+      redis:
+        condition: service_started
 
   ebanking2:
     build: .
-    command: gunicorn ebanking.wsgi:application --bind 0.0.0.0:8003 --workers 2
+    command: gunicorn ebanking.wsgi:application --bind 0.0.0.0:8003 --workers 2 --timeout 120 --log-level debug
     volumes:
       - ./ebanking/media:/app/ebanking/media
       - ./ebanking/staticfiles:/app/ebanking/staticfiles
+      - ./templates:/app/templates
     environment:
       - DB_HOST=postgres
+      - REDIS_URL=redis://redis:6379
+      - PYTHONUNBUFFERED=1
+      - DJANGO_SETTINGS_MODULE=ebanking.settings
     depends_on:
       postgres:
         condition: service_healthy
+      redis:
+        condition: service_started
 
   nginx:
     image: nginx:alpine
@@ -66,6 +84,7 @@ services:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf
       - ./ebanking/staticfiles:/usr/share/nginx/html/static
       - ./ebanking/media:/usr/share/nginx/html/media
+      - ./templates:/usr/share/nginx/html/templates:ro
     depends_on:
       - core
       - ebanking1
@@ -73,3 +92,4 @@ services:
 
 volumes:
   postgres_data:
+

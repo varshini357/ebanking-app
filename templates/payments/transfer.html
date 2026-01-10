@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block title %}Transfer Money{% endblock %}
+{% block content %}
+<h2>💰 Transfer Money</h2>
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body">
+                <h5>Quick Transfer</h5>
+                <form>
+                    <div class="mb-3">
+                        <label class="form-label">To Account</label>
+                        <input type="text" class="form-control" placeholder="Enter account number">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Amount</label>
+                        <input type="number" class="form-control" placeholder="₹ 0.00">
+                    </div>
+                    <button type="submit" class="btn btn-success w-100">Transfer Now</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

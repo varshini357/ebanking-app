@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard - E-Banking{% endblock %}
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h2>Welcome, {{ request.session.username }}!</h2>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6 mb-4">
+        <div class="card text-white bg-success">
+            <div class="card-body">
+                <h2 class="card-title">₹{{ account.balance|floatformat:2 }}</h2>
+                <p class="card-text">Available Balance</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-4 mb-3">
+        <a href="{% url 'transfer' %}" class="btn btn-primary btn-lg w-100">
+            💰 Transfer Money
+        </a>
+    </div>
+    <div class="col-md-4 mb-3">
+        <a href="/admin/" class="btn btn-outline-secondary btn-lg w-100">
+            ⚙️ Admin Panel
+        </a>
+    </div>
+    <div class="col-md-4 mb-3">
+        <a href="/admin/accounts/account/" class="btn btn-outline-info btn-lg w-100">
+            📊 View Accounts
+        </a>
+    </div>
+</div>
+{% endblock %}
