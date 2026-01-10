@@ -1,0 +1,75 @@
+version: '3.8'
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ebanking_db
+      POSTGRES_USER: ebank_user
+      POSTGRES_PASSWORD: securepass123
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ebank_user"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+
+  core:
+    build: .
+    command: gunicorn ebanking.wsgi:application --bind 0.0.0.0:8001 --workers 2
+    volumes:
+      - ./ebanking/media:/app/ebanking/media
+      - ./ebanking/staticfiles:/app/ebanking/staticfiles
+    environment:
+      - DB_HOST=postgres
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  ebanking1:
+    build: .
+    command: gunicorn ebanking.wsgi:application --bind 0.0.0.0:8002 --workers 2
+    volumes:
+      - ./ebanking/media:/app/ebanking/media
+      - ./ebanking/staticfiles:/app/ebanking/staticfiles
+    environment:
+      - DB_HOST=postgres
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  ebanking2:
+    build: .
+    command: gunicorn ebanking.wsgi:application --bind 0.0.0.0:8003 --workers 2
+    volumes:
+      - ./ebanking/media:/app/ebanking/media
+      - ./ebanking/staticfiles:/app/ebanking/staticfiles
+    environment:
+      - DB_HOST=postgres
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./ebanking/staticfiles:/usr/share/nginx/html/static
+      - ./ebanking/media:/usr/share/nginx/html/media
+    depends_on:
+      - core
+      - ebanking1
+      - ebanking2
+
+volumes:
+  postgres_data:
